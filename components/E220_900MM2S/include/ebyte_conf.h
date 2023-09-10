@@ -1,0 +1,10 @@
+#ifndef EBYTE_CONF_H_
+#define EBYTE_CONF_H_
+
+
+#define EBYTE_E220_900M22S 
+#define EBYTE_PORT_SPI_CS_SOFTWARE    1
+#define EBYTE_RF_TRANSMIT_CHECK_MODE  1
+
+
+#endif
