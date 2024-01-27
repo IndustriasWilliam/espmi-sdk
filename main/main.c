@@ -387,41 +387,55 @@ void RF_Task(void* pvParameters){
 
 void app_main(void)
 {
+
+	gpio_config_t config;
+
+	config.mode = GPIO_MODE_OUTPUT;
+	config.pin_bit_mask = ((uint64_t)1 << ESPMI_ADV_PD);
+	config.pull_down_en = GPIO_PULLDOWN_DISABLE;
+	config.pull_up_en = GPIO_PULLUP_DISABLE;
+
+	gpio_config(&config);
+
+	gpio_set_level(ESPMI_ADV_PD, 1);
+
+
+
 //	TaskHandle_t gui;
 
 
 //	Ebyte_RF.Init();
 //	Ebyte_RF.EnterReceiveMode(0);
-	xTaskCreatePinnedToCore(usb_lib_task, "usb_events", 4096, xTaskGetCurrentTaskHandle(), 2, NULL, 0);
-
+//	xTaskCreatePinnedToCore(usb_lib_task, "usb_events", 4096, xTaskGetCurrentTaskHandle(), 2, NULL, 0);
+//
 	ESPMI_ConfigI2C(ESPMI_I2C_MASTER_NUM);
-	ESPMI_ConfigSPI(SPI2_HOST);
-	ESPMI_ConfigGPIO();
-	ESPMI_MCP23008_ConfigGpioDir(0x71);
-
-	ulTaskNotifyTake(false, 1000);
-	/*
-	* HID host driver configuration
-	* - create background task for handling low level event inside the HID driver
-	* - provide the device callback to get new HID Device connection event
-	*/
-	const hid_host_driver_config_t hid_host_driver_config = {
-		.create_background_task = true,
-		.task_priority = 5,
-		.stack_size = 4096,
-		.core_id = 0,
-		.callback = hid_host_device_callback,
-		.callback_arg = NULL
-	};
-
-	ESP_ERROR_CHECK( hid_host_install(&hid_host_driver_config) );
-
-	/*
-	* Create HID Host task process for handle events
-	* IMPORTANT: Task is necessary here while there is no possibility to interact
-	* with USB device from the callback.
-	*/
-	xTaskCreate(&hid_host_task, "hid_task", 4 * 1024, NULL, 2, NULL);
+//	ESPMI_ConfigSPI(SPI2_HOST);
+//	ESPMI_ConfigGPIO();
+//	ESPMI_MCP23008_ConfigGpioDir(0x71);
+//
+//	ulTaskNotifyTake(false, 1000);
+//	/*
+//	* HID host driver configuration
+//	* - create background task for handling low level event inside the HID driver
+//	* - provide the device callback to get new HID Device connection event
+//	*/
+//	const hid_host_driver_config_t hid_host_driver_config = {
+//		.create_background_task = true,
+//		.task_priority = 5,
+//		.stack_size = 4096,
+//		.core_id = 0,
+//		.callback = hid_host_device_callback,
+//		.callback_arg = NULL
+//	};
+//
+//	ESP_ERROR_CHECK( hid_host_install(&hid_host_driver_config) );
+//
+//	/*
+//	* Create HID Host task process for handle events
+//	* IMPORTANT: Task is necessary here while there is no possibility to interact
+//	* with USB device from the callback.
+//	*/
+//	xTaskCreate(&hid_host_task, "hid_task", 4 * 1024, NULL, 2, NULL);
 	disp = HDMI_Initialize(xTaskGetCurrentTaskHandle());
 	ui_init();
 //	xTaskCreatePinnedToCore(RF_Task, "rf_task", 1024*4, NULL, 5, NULL, 0);
