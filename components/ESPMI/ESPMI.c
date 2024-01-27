@@ -75,6 +75,7 @@ esp_err_t ESPMI_ConfigGPIO(void){
 	gpioConfig.pull_down_en = GPIO_PULLDOWN_DISABLE;
 	gpioConfig.pull_up_en = GPIO_PULLUP_DISABLE;
 
+
 	return gpio_config(&gpioConfig);
 }
 

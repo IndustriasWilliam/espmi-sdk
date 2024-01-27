@@ -6,15 +6,29 @@
 #include "driver/spi_master.h"
 #include "driver/i2c.h"
 
+
+
+#ifndef ESPMI_MINI
 #define ESPMI_I2C_SDA					GPIO_NUM_5
 #define ESPMI_I2C_SCL					GPIO_NUM_4
+
+#else
+#define ESPMI_I2C_SDA					GPIO_NUM_2
+#define ESPMI_I2C_SCL					GPIO_NUM_1
+#define ESPMI_ADV_PD 					GPIO_NUM_7
+#endif
+
 #define ESPMI_I2C_FREQ					100000
 #define ESPMI_I2C_MASTER_NUM 			0
 #define ESPMI_I2C_MASTER_TIMEOUT_MS		1000
 
 #define ESPMI_MCP23008_ADDRESS	0x40
-#define HDMI_ADDRESS			0x70
 
+#ifndef ESPMI_MINI
+#define HDMI_ADDRESS			0x70
+#else
+#define HDMI_ADDRESS			0x7A
+#endif
 
 #define ESPMI_MCP23008_IODIR		0x00
 #define ESPMI_MCP23008_IPOL			0x01
