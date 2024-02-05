@@ -388,6 +388,7 @@ void RF_Task(void* pvParameters){
 void app_main(void)
 {
 
+#ifdef ESPMI_MINI
 	gpio_config_t config;
 
 	config.mode = GPIO_MODE_OUTPUT;
@@ -398,8 +399,12 @@ void app_main(void)
 	gpio_config(&config);
 
 	gpio_set_level(ESPMI_ADV_PD, 1);
+	vTaskDelay(1000);
 
-
+	gpio_set_level(ESPMI_ADV_PD, 0);
+	vTaskDelay(10);
+	gpio_set_level(ESPMI_ADV_PD, 1);
+#endif
 
 //	TaskHandle_t gui;
 

@@ -217,7 +217,7 @@ static esp_err_t HDMI_BRIDGE_Init(void){
 	ESPMI_I2CWriteByte(HDMI_ADDRESS >> 1, 0xE4, 0x60);
 	ESPMI_I2CWriteByte(HDMI_ADDRESS >> 1, 0xFA, 0x7D);
 
-	ESPMI_I2CWriteByte(HDMI_ADDRESS >> 1, 0x17, 0x60);
+	//ESPMI_I2CWriteByte(HDMI_ADDRESS >> 1, 0x17, 0x60);
 
 
 
@@ -289,13 +289,13 @@ static esp_lcd_panel_handle_t HDMI_InitRGBBus(lv_disp_drv_t* disp_drive, _Bool r
             RGB_PIN_G2,
             RGB_PIN_G3,
             RGB_PIN_G4,
-//            RGB_PIN_G5,
+           RGB_PIN_G5,
             RGB_PIN_R0,
             RGB_PIN_R1,
             RGB_PIN_R2,
             RGB_PIN_R3,
             RGB_PIN_R4,
-			RGB_PIN_R5
+			// RGB_PIN_R5
         },
 
         .timings = {
@@ -309,7 +309,7 @@ static esp_lcd_panel_handle_t HDMI_InitRGBBus(lv_disp_drv_t* disp_drive, _Bool r
             .vsync_back_porch = 13,
             .vsync_front_porch = 3,
             .vsync_pulse_width = 4,
-            .flags.pclk_active_neg = true,
+            .flags.pclk_active_neg = false,
 			.flags.vsync_idle_low = true,
 			.flags.hsync_idle_low = true,
 			.flags.de_idle_high = false,

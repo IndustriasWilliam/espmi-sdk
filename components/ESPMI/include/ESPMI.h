@@ -6,7 +6,7 @@
 #include "driver/spi_master.h"
 #include "driver/i2c.h"
 
-#define ESPMI_MINI
+// #define ESPMI_MINI
 
 
 #ifndef ESPMI_MINI
