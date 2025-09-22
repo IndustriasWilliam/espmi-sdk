@@ -1,0 +1,12 @@
+{
+    "idf.adapterTargetName": "esp32s3",
+    "files.associations": {
+        "lvgl.h": "c",
+        "lv_demos.h": "c",
+        "lv_demo_widgets.h": "c",
+        "lv_conf_kconfig.h": "c",
+        "sdkconfig.h": "c"
+    },
+    "idf.flashType": "UART",
+    "idf.portWin": "COM11"
+}

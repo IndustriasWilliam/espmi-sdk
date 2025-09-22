@@ -15,7 +15,7 @@
 #include <usb/usb_host.h>
 #include "HDMI.h"
 #include "lvgl.h"
-#include "ui.h"
+#include  "lvgl__lvgl/demos/lv_demos.h"
 
 
 static lv_disp_t* disp = NULL;
@@ -168,8 +168,8 @@ static void hid_host_generic_report_callback(const uint8_t *const data, const in
 	uint16_t x = ((uint8_t)data[3] << 8)| data[2];
 	uint16_t y = ((uint8_t)data[5] << 8)| data[4];
 
-	x_coord = map_coord(x, 16383, 640);
-	y_coord = map_coord(y, 16282, 480);
+	x_coord = map_coord(x, 16383, 1024);
+	y_coord = map_coord(y, 16282, 768);
 	touchscreen_interrupt = 1;
 	isPressed = data[1] >> 6;
 //	printf("%i %i %i %i\r\n", data[2], data[3], data[4], data[5]);
@@ -387,7 +387,7 @@ void RF_Task(void* pvParameters){
 
 void app_main(void)
 {
-//	TaskHandle_t gui;
+	TaskHandle_t gui;
 
 
 //	Ebyte_RF.Init();
@@ -395,7 +395,7 @@ void app_main(void)
 	xTaskCreatePinnedToCore(usb_lib_task, "usb_events", 4096, xTaskGetCurrentTaskHandle(), 2, NULL, 0);
 
 	ESPMI_ConfigI2C(ESPMI_I2C_MASTER_NUM);
-	ESPMI_ConfigSPI(SPI2_HOST);
+	// ESPMI_ConfigSPI(SPI2_HOST);
 	ESPMI_ConfigGPIO();
 	ESPMI_MCP23008_ConfigGpioDir(0x71);
 
@@ -423,11 +423,12 @@ void app_main(void)
 	*/
 	xTaskCreate(&hid_host_task, "hid_task", 4 * 1024, NULL, 2, NULL);
 	disp = HDMI_Initialize(xTaskGetCurrentTaskHandle());
-	ui_init();
+	lv_demo_widgets();
+	
 //	xTaskCreatePinnedToCore(RF_Task, "rf_task", 1024*4, NULL, 5, NULL, 0);
-//	xTaskCreatePinnedToCore(LVGL_Task, "guiTask", 1024*4, NULL, 4, &gui, 0);
+	// xTaskCreatePinnedToCore(LVGL_Task, "guiTask", 1024*4, NULL, 4, &gui, 0);
     while (1) {
     	LVGL_Task(NULL);
-//    	vTaskDelay(500);
+   	// vTaskDelay(500);
     }
 }
