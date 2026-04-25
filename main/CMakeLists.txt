@@ -1,9 +1,7 @@
 idf_component_register(SRCS 
-	"main.c" 
-	"lvgl_demo_ui.c"
-
-	#"ui_events.c"
+	"main.c"
 
 	
-	INCLUDE_DIRS "." 
+	INCLUDE_DIRS "."
+	REQUIRES HDMI usb usb_host_hid
 )

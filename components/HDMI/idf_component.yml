@@ -1,0 +1,8 @@
+version: "0.1.0"
+description: "Configurable ESP-IDF component for the TFP410 RGB-to-HDMI bridge"
+targets:
+  - esp32s3
+dependencies:
+  idf: ">=5.0"
+  lvgl/lvgl: "~8.3.6"
+  usb_host_hid: "1.0.0"

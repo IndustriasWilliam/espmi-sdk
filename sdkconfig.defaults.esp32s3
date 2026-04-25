@@ -1,6 +1,12 @@
 CONFIG_SPIRAM=y
 CONFIG_SPIRAM_MODE_OCT=y
 CONFIG_SPIRAM_SPEED_80M=y
+CONFIG_ESP_CONSOLE_UART_DEFAULT=y
+# CONFIG_ESP_CONSOLE_USB_CDC is not set
+# CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG is not set
+CONFIG_ESP_CONSOLE_SECONDARY_NONE=y
+# CONFIG_ESP_CONSOLE_SECONDARY_USB_SERIAL_JTAG is not set
+# CONFIG_USJ_ENABLE_USB_SERIAL_JTAG is not set
 
 # Enabling the following configurations can help increase the PCLK frequency in the case when
 # the Frame Buffer is allocated from the PSRAM and fetched by EDMA

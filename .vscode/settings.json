@@ -1,12 +1,14 @@
 {
-    "idf.adapterTargetName": "esp32s3",
-    "files.associations": {
-        "lvgl.h": "c",
-        "lv_demos.h": "c",
-        "lv_demo_widgets.h": "c",
-        "lv_conf_kconfig.h": "c",
-        "sdkconfig.h": "c"
-    },
-    "idf.flashType": "UART",
-    "idf.portWin": "COM11"
+  "idf.adapterTargetName": "esp32s3",
+  "files.associations": {
+    "lvgl.h": "c",
+    "lv_demos.h": "c",
+    "lv_demo_widgets.h": "c",
+    "lv_conf_kconfig.h": "c",
+    "sdkconfig.h": "c"
+  },
+  "idf.flashType": "UART",
+  "idf.portWin": "COM29",
+  "idf.currentSetup": "C:\\Users\\Deived\\esp\\v5.5.1\\esp-idf",
+  "idf.openOcdConfigs": ["board/esp32s3-builtin.cfg"]
 }

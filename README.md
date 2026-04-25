@@ -1,114 +1,182 @@
-| Supported Targets | ESP32-S3 |
-| ----------------- | -------- |
+# espmi-sdk
 
-# RGB LCD Panel Example
+SDK base para a placa ESPMI HDMI com `ESP32-S3`, saida de video via `TFP410` e interface grafica em `LVGL`.
 
-[esp_lcd](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/peripherals/lcd.html) supports RGB interfaced LCD panel, with one or two frame buffer(s) managed by the driver itself.
+O projeto atual sobe uma interface grafica em `640x480`, inicializa a ponte HDMI, integra o display com o `LVGL` e opcionalmente recebe toque por `USB HID`.
 
-This example shows the general process of installing an RGB panel driver, and displays a scatter chart on the screen based on the LVGL library. For more information about porting the LVGL library, please refer to [official porting guide](https://docs.lvgl.io/master/porting/index.html). This example uses two kinds of **buffering mode** based on the number of frame buffers:
+## Visao geral
 
-| Number of Frame Buffers | LVGL buffering mode | Way to avoid tear effect                                                                                    |
-|-------------------------|---------------------|-------------------------------------------------------------------------------------------------------------|
-| 1                       | Two buffers         | Extra synchronization mechanism is needed, e.g. using semaphore.                                            |
-| 2                       | Full refresh        | There's no intersection between writing to an offline frame buffer and reading from an online frame buffer. |
+Este repositorio deixou de ser apenas o exemplo generico de RGB LCD da Espressif e passou a funcionar como base de firmware para a familia ESPMI HDMI.
 
-## How to use the example
+Hoje ele entrega:
 
-### Hardware Required
+- inicializacao de video HDMI sobre barramento RGB de 16 bits
+- deteccao e configuracao da ponte `TFP410` por `I2C`
+- integracao com `LVGL 8.3.6`
+- demo grafica pronta para validar display e renderizacao
+- suporte a touch USB via `usb_host_hid`
+- perfil de renderizacao ajustavel para baixa latencia ou animacao pesada
 
-* An ESP development board, which has RGB LCD peripheral supported and **Octal PSRAM** onboard
-* A general RGB panel, 16 bit-width, with HSYNC, VSYNC and DE signal
-* An USB cable for power supply and programming
+## Stack usada
 
-### Hardware Connection
+- MCU: `ESP32-S3`
+- Framework: `ESP-IDF >= 5.0`
+- GUI: `LVGL ~8.3.6`
+- Video: `TFP410 RGB-to-HDMI bridge`
+- Entrada: `USB HID`
 
-The connection between ESP Board and the LCD is as follows:
+As dependencias principais estao declaradas em:
 
-```
-       ESP Board                           RGB  Panel
-+-----------------------+              +-------------------+
-|                   GND +--------------+GND                |
-|                       |              |                   |
-|                   3V3 +--------------+VCC                |
-|                       |              |                   |
-|                   PCLK+--------------+PCLK               |
-|                       |              |                   |
-|             DATA[15:0]+--------------+DATA[15:0]         |
-|                       |              |                   |
-|                  HSYNC+--------------+HSYNC              |
-|                       |              |                   |
-|                  VSYNC+--------------+VSYNC              |
-|                       |              |                   |
-|                     DE+--------------+DE                 |
-|                       |              |                   |
-|               BK_LIGHT+--------------+BLK                |
-+-----------------------+              |                   |
-                               3V3-----+DISP_EN            |
-                                       |                   |
-                                       +-------------------+
-```
+- [main/idf_component.yml](main/idf_component.yml)
+- [components/HDMI/idf_component.yml](components/HDMI/idf_component.yml)
 
-The GPIO number used by this example can be changed in [lvgl_example_main.c](main/rgb_lcd_example_main.c).
+## Estrutura do projeto
 
-Especially, please pay attention to the level used to turn on the LCD backlight, some LCD module needs a low level to turn it on, while others take a high level. You can change the backlight level macro `EXAMPLE_LCD_BK_LIGHT_ON_LEVEL` in [lvgl_example_main.c](main/rgb_lcd_example_main.c).
+- [main/main.c](main/main.c): aplicacao principal, setup do HDMI, touch USB e demo do LVGL
+- [components/HDMI/include/HDMI.h](components/HDMI/include/HDMI.h): API publica da camada HDMI
+- [components/HDMI/HDMI.c](components/HDMI/HDMI.c): inicializacao da ponte, display, buffers, touch e ciclo do LVGL
+- [sdkconfig.defaults.esp32s3](sdkconfig.defaults.esp32s3): configuracoes base para o alvo `esp32s3`
+- [managed_components](managed_components): dependencias baixadas pelo ESP-IDF na primeira compilacao
 
-If the RGB LCD panel only supports DE mode, you can even bypass the `HSYNC` and `VSYNC` signals, by assigning `EXAMPLE_PIN_NUM_HSYNC` and `EXAMPLE_PIN_NUM_VSYNC` with `-1`.
+## Requisitos
 
-### Configure
+Antes de gravar a placa, tenha em maos:
 
-Run `idf.py menuconfig` and go to `Example Configuration`:
+- ambiente `ESP-IDF 5.x` configurado
+- cabo USB para programacao e alimentacao
+- monitor ou TV com entrada HDMI
+- cabo HDMI
+- placa ESPMI HDMI baseada em `ESP32-S3`
 
-1. Choose whether to `Use double Frame Buffer`
-2. Choose whether to `Avoid tearing effect` (available only when step `1` was chosen to false)
-3. Choose whether to `Use bounce buffer` (available only when step `1` was chosen to false)
+Opcional:
 
-### Build and Flash
+- dispositivo de toque USB compativel
 
-Run `idf.py -p PORT build flash monitor` to build, flash and monitor the project. A scatter chart will show up on the LCD as expected.
+## Build rapido
 
-The first time you run `idf.py` for the example will cost extra time as the build system needs to address the component dependencies and downloads the missing components from registry into `managed_components` folder.
-
-(To exit the serial monitor, type ``Ctrl-]``.)
-
-See the [Getting Started Guide](https://docs.espressif.com/projects/esp-idf/en/latest/get-started/index.html) for full steps to configure and use ESP-IDF to build projects.
-
-### Example Output
+Defina o alvo:
 
 ```bash
-...
-I (0) cpu_start: Starting scheduler on APP CPU.
-I (856) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations
-I (856) example: Create semaphores
-I (866) example: Turn off LCD backlight
-I (866) gpio: GPIO[4]| InputEn: 0| OutputEn: 1| OpenDrain: 0| Pullup: 0| Pulldown: 0| Intr:0
-I (876) example: Install RGB LCD panel driver
-I (906) example: Register event callbacks
-I (906) example: Initialize RGB LCD panel
-I (906) example: Turn on LCD backlight
-I (906) example: Initialize LVGL library
-I (916) example: Allocate separate LVGL draw buffers from PSRAM
-I (916) example: Register display driver to LVGL
-I (926) example: Install LVGL tick timer
-I (926) example: Display LVGL Scatter Chart
-...
+idf.py set-target esp32s3
 ```
+
+Compile o projeto:
+
+```bash
+idf.py build
+```
+
+Grave e abra o monitor serial:
+
+```bash
+idf.py -p COM5 flash monitor
+```
+
+Troque `COM5` pela porta correta da sua maquina.
+
+Na primeira compilacao, o `ESP-IDF` pode baixar dependencias para a pasta `managed_components`.
+
+## O que o firmware faz hoje
+
+No estado atual do projeto, o fluxo principal e este:
+
+1. Carrega a configuracao padrao da camada HDMI.
+2. Configura `I2C` da ponte `TFP410`.
+3. Define os GPIOs do barramento RGB e dos sinais de sincronismo.
+4. Sobe o video em `640x480`.
+5. Habilita o toque USB, quando ativo.
+6. Inicializa o `LVGL`.
+7. Executa a demo `lv_demo_widgets()`.
+
+Se a opcao `run_benchmark_demo` for ligada em [main/main.c](main/main.c), a aplicacao passa a usar `lv_demo_benchmark()`.
+
+## Configuracoes importantes
+
+As configuracoes mais uteis para o primeiro ajuste estao em [main/main.c](main/main.c):
+
+- `hdmi_config.i2c.*`: pinos e clock do `I2C`
+- `hdmi_config.panel_config.*`: pinos do barramento RGB e timings de video
+- `hdmi_config.usb_touch.*`: calibracao e comportamento do touch USB
+- `HDMI_ApplyRenderProfile(...)`: perfil de desempenho/renderizacao
+
+Os valores padrao atuais incluem:
+
+- `I2C SDA`: `GPIO_NUM_5`
+- `I2C SCL`: `GPIO_NUM_4`
+- `PCLK`: `GPIO_NUM_8`
+- `VSYNC`: `GPIO_NUM_7`
+- `HSYNC`: `GPIO_NUM_6`
+- `DE`: `GPIO_NUM_15`
+- resolucao: `640x480`
+- `pclk_hz`: `24000000`
+
+## Touch USB
+
+O projeto ja contem a infraestrutura para receber relatorios HID e traduzir isso em eventos de toque para o `LVGL`.
+
+Os ajustes mais comuns ficam nestes campos:
+
+- `raw_max_x`
+- `raw_max_y`
+- `swap_xy`
+- `invert_x`
+- `invert_y`
+
+Se o toque responder invertido ou fora de escala, normalmente o ajuste comeca por ai.
+
+## Logs esperados
+
+Quando tudo sobe corretamente, voce deve observar no monitor serial sinais de que:
+
+- a pilha USB foi inicializada
+- a ponte `TFP410` respondeu no `I2C`
+- o display foi criado
+- o `LVGL` entrou em execucao
+
+Se a interface aparecer na tela, o pipeline principal esta validado.
 
 ## Troubleshooting
 
-* Why the LCD doesn't light up?
-  * Check the backlight's turn-on level, and update it in `EXAMPLE_LCD_BK_LIGHT_ON_LEVEL`
-* No memory for frame buffer
-  * The frame buffer of RGB panel is located in ESP side (unlike other controller based LCDs, where the frame buffer is located in external chip). As the frame buffer usually consumes much RAM (depends on the LCD resolution and color depth), we recommend to put the frame buffer into PSRAM (like what we do in this example). However, putting frame buffer in PSRAM will limit the maximum PCLK due to the bandwidth of **SPI0**.
-* LCD screen drift
-  * Slow down the PCLK frequency
-  * Adjust other timing parameters like PCLK clock edge (by `pclk_active_neg`), sync porches like VBP (by `vsync_back_porch`) according to your LCD spec
-  * Enable `CONFIG_SPIRAM_FETCH_INSTRUCTIONS` and `CONFIG_SPIRAM_RODATA`, which can saves some bandwidth of SPI0 from being consumed by ICache.
-* LCD screen tear effect
-  * Using double frame buffers
-  * Or adding an extra synchronization mechanism between writing (by Cache) and reading (by EDMA) the frame buffer.
-* Low PCLK frequency
-  * Enable `CONFIG_EXAMPLE_USE_BOUNCE_BUFFER`, which will make the LCD controller fetch data from internal SRAM (instead of the PSRAM), but at the cost of increasing CPU usage.
-  * Enable `CONFIG_SPIRAM_FETCH_INSTRUCTIONS` and `CONFIG_SPIRAM_RODATA` can also help if the you're not using the bounce buffer mode. These two configurations can save some **SPI0** bandwidth from being consumed by ICache.
+### Sem imagem no HDMI
 
-For any technical queries, please open an [issue](https://github.com/espressif/esp-idf/issues) on GitHub. We will get back to you soon.
-"# espmi-sdk" 
+Confira:
+
+- se o monitor esta na entrada correta
+- se o cabo HDMI esta funcionando
+- se a placa esta energizada e gravada corretamente
+- se a ponte `TFP410` foi detectada no log serial
+
+### Touch sem resposta
+
+Confira:
+
+- se o dispositivo USB e realmente HID
+- se o USB host foi iniciado com sucesso
+- se `raw_max_x` e `raw_max_y` batem com o hardware usado
+- se precisa inverter eixo ou trocar `x/y`
+
+### Interface lenta
+
+O desempenho depende principalmente de:
+
+- resolucao
+- perfil de renderizacao
+- altura do draw buffer
+- quantidade de atualizacoes simultaneas na tela
+
+Para o primeiro bring-up, o ideal e buscar estabilidade antes de otimizar animacoes.
+
+## Proximos passos
+
+Uma evolucao natural deste projeto e:
+
+1. manter a inicializacao HDMI como esta
+2. trocar a demo do `LVGL` por uma UI propria
+3. encapsular telas, widgets e eventos em modulos separados
+4. calibrar o touch para o hardware final
+5. documentar o hardware da placa junto com o firmware
+
+## Referencias uteis
+
+- [ESP-IDF Getting Started](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/get-started/)
+- [LVGL Documentation](https://docs.lvgl.io/)
