@@ -253,7 +253,7 @@ void app_main(void)
     hdmi_config.panel_config.disp_gpio_num = -1;
     memcpy(hdmi_config.panel_config.data_gpio_nums, hdmi_data_pins, sizeof(hdmi_data_pins));
 
-    hdmi_config.panel_config.timings.pclk_hz = 24000000UL;
+    hdmi_config.panel_config.timings.pclk_hz = 24000000;
     hdmi_config.panel_config.timings.h_res = 640;
     hdmi_config.panel_config.timings.v_res = 480;
     hdmi_config.panel_config.timings.hsync_back_porch = 80;
